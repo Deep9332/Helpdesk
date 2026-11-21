@@ -137,24 +137,3 @@ Optional: `SENTRY_DSN`, `SENTRY_ENVIRONMENT`
 
 
 
-
-Kam kar ne song hambhale te 
-karu j sav aaj nu thai gayu eetel 
-to ghar bhego tha
-45 e
-30 min kadhavani che
-haaa
-Docker avde ch ?naa
-naa eenu kai nathi kayru haji
-srs
-aapse maam syd
-oky
-tu kam kar ne 
-chalu j che
-vahh matalb cheking karva aayvo eem ne 
-has to
-kem?
-tu hu kare eam nya internship ma
-khav piv ne moj kal to pizza aaypa th ne aaj katless 
-srs
-too maja aave bass khali thandi vathare lage che 

@@ -40,8 +40,9 @@ export async function registerAutoResolveWorker(boss: PgBoss): Promise<void> {
 
     let response: string;
     try {
+      const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
       const { text } = await generateText({
-        model: openai("gpt-5-nano"),
+        model: openai(modelName),
         system:
           "You are a friendly and professional support agent for Code with Mosh. " +
           "Use ONLY the following knowledge base to answer the customer's question.\n\n" +
