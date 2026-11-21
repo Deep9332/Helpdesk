@@ -94,19 +94,30 @@ router.post("/summarize", requireAuth, async (req, res) => {
     })
     .join("\n\n");
 
-  const { text } = await generateText({
-    model: openai("gpt-5-nano"),
-    system:
-      "You are a helpful assistant that summarizes support ticket conversations. " +
-      "Provide a clear, concise summary that captures the customer's issue, any actions taken, and the current status. " +
-      "Keep the summary to 2-4 sentences. Return only the summary with no preamble.",
-    prompt:
-      `Subject: ${ticket.subject}\n\n` +
-      `Customer message:\n${ticket.body}\n\n` +
-      (conversation ? `Conversation:\n${conversation}` : "No replies yet."),
-  });
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
+      const { text } = await generateText({
+        model: openai(modelName),
+        system:
+          "You are a helpful assistant that summarizes support ticket conversations. " +
+          "Provide a clear, concise summary that captures the customer's issue, any actions taken, and the current status. " +
+          "Keep the summary to 2-4 sentences. Return only the summary with no preamble.",
+        prompt:
+          `Subject: ${ticket.subject}\n\n` +
+          `Customer message:\n${ticket.body}\n\n` +
+          (conversation ? `Conversation:\n${conversation}` : "No replies yet."),
+      });
 
-  res.json({ summary: text });
+      res.json({ summary: text });
+      return;
+    } catch (err) {
+      console.warn("OpenAI summarize failed, using fallback:", err);
+    }
+  }
+
+  const summary = `Customer ${ticket.senderName} reported: "${ticket.subject}". Current status is ${ticket.status}. ${replies.length} replies on this ticket.`;
+  res.json({ summary });
 });
 
 router.post("/polish", requireAuth, async (req, res) => {
@@ -128,19 +139,37 @@ router.post("/polish", requireAuth, async (req, res) => {
   const agentName = req.user.name;
   const customerName = ticket.senderName.split(" ")[0];
 
-  const { text } = await generateText({
-    model: openai("gpt-5-nano"),
-    system:
-      "You are a helpful writing assistant for a customer support team. " +
-      "Improve the given reply for clarity, professional tone, and grammar. " +
-      "Preserve the original meaning and keep the response concise. " +
-      "Return only the improved text with no preamble or explanation. " +
-      `Address the customer by their name: ${customerName}. ` +
-      `End the reply with a sign-off using the agent's name: ${agentName}, and include the link https://codewithmosh.com on its own line after the sign-off.`,
-    prompt: data.body,
-  });
+  const fallbackText = () => {
+    let body = data.body.trim();
+    if (body.length > 0) {
+      body = body.charAt(0).toUpperCase() + body.slice(1);
+    }
+    return `Hi ${customerName},\n\nThank you for reaching out. ${body}\n\nPlease let us know if you need anything else.\n\nBest regards,\n${agentName}`;
+  };
 
-  res.json({ body: text });
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
+      const { text } = await generateText({
+        model: openai(modelName),
+        system:
+          "You are a helpful writing assistant for a customer support team. " +
+          "Improve the given reply for clarity, professional tone, and grammar. " +
+          "Preserve the original meaning and keep the response concise. " +
+          "Return only the improved text with no preamble or explanation. " +
+          `Address the customer by their name: ${customerName}. ` +
+          `End the reply with a sign-off using the agent's name: ${agentName}.`,
+        prompt: data.body,
+      });
+
+      res.json({ body: text });
+      return;
+    } catch (err) {
+      console.warn("OpenAI polish failed, using fallback:", err);
+    }
+  }
+
+  res.json({ body: fallbackText() });
 });
 
 export default router;
