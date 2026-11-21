@@ -2,7 +2,7 @@
 set "PATH=C:\Users\Harsh\.bun\bin;C:\Program Files\PostgreSQL\17\bin;%PATH%"
 
 echo ==========================================================
-echo  Starting Code With Mosh Helpdesk (Bun + Express + React)
+echo  Starting Helpdesk (Bun + Express + React)
 echo ==========================================================
 
 :: Start PostgreSQL if not already running

@@ -4,7 +4,7 @@ if ($env:PATH -notlike "*$bunPath*") {
 }
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host " Starting Code With Mosh Helpdesk (Bun + Express + React)" -ForegroundColor Green
+Write-Host " Starting Helpdesk (Bun + Express + React)" -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 # Start PostgreSQL if not already running
