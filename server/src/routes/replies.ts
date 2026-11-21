@@ -116,7 +116,18 @@ router.post("/summarize", requireAuth, async (req, res) => {
     }
   }
 
-  const summary = `Customer ${ticket.senderName} reported: "${ticket.subject}". Current status is ${ticket.status}. ${replies.length} replies on this ticket.`;
+  // Smart fallback summary when OpenAI API key is not configured
+  const latestReply = replies[replies.length - 1];
+  let actionSummary = "";
+  if (latestReply) {
+    const sender = latestReply.senderType === "agent" ? (latestReply.user?.name || "Support") : ticket.senderName;
+    actionSummary = ` ${sender} has communicated on this issue with ${replies.length} total ${replies.length === 1 ? "reply" : "replies"}.`;
+  } else {
+    actionSummary = " No replies have been sent yet.";
+  }
+
+  const cleanBody = ticket.body.replace(/\s+/g, " ").trim();
+  const summary = `${ticket.senderName} reported an issue regarding "${ticket.subject}": "${cleanBody.slice(0, 160)}${cleanBody.length > 160 ? "..." : ""}".${actionSummary} The ticket status is currently ${ticket.status}.`;
   res.json({ summary });
 });
 
