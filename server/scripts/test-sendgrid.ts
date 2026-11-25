@@ -4,12 +4,16 @@ import sgMail from "@sendgrid/mail";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const apiKey = process.env.SENDGRID_API_KEY;
-const fromEmail = process.env.SENDGRID_FROM_EMAIL;
-
-if (!apiKey || !fromEmail) {
-  throw new Error("SENDGRID_API_KEY and SENDGRID_FROM_EMAIL must be set in server/.env");
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} must be set in server/.env`);
+  }
+  return value;
 }
+
+const apiKey = requireEnv("SENDGRID_API_KEY");
+const fromEmail = requireEnv("SENDGRID_FROM_EMAIL");
 
 sgMail.setApiKey(apiKey);
 
