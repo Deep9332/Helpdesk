@@ -14,6 +14,7 @@ import webhooksRouter from "./routes/webhooks";
 import repliesRouter from "./routes/replies";
 import { startQueue, stopQueue } from "./lib/queue";
 import { getTrustedOrigins } from "./lib/origins";
+import { startGmailSync, stopGmailSync } from "./lib/gmail-sync";
 
 
 if (!process.env.BETTER_AUTH_SECRET) {
@@ -125,6 +126,10 @@ if (!process.env.WEBHOOK_SECRET) {
 async function boot() {
   await startQueue();
 
+  if (isProduction && process.env.DISABLE_GMAIL_SYNC !== "true") {
+    void startGmailSync();
+  }
+
   const server = app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
   });
@@ -132,6 +137,7 @@ async function boot() {
   const shutdown = async () => {
     console.log("Shutting down...");
     server.close();
+    await stopGmailSync();
     await stopQueue();
     process.exit(0);
   };

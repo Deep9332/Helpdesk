@@ -39,7 +39,10 @@ export async function registerSendEmailWorker(boss: PgBoss): Promise<void> {
         console.log(`Email sent via SendGrid to ${to} — subject: "${subject}"`);
         return;
       } catch (sgError: any) {
-        console.warn("SendGrid sending failed, falling back to Gmail SMTP:", sgError.message);
+        const details = sgError?.response?.body
+          ? JSON.stringify(sgError.response.body)
+          : sgError?.message;
+        console.warn("SendGrid sending failed, falling back to Gmail SMTP:", details);
       }
     }
 
@@ -75,6 +78,12 @@ export async function registerSendEmailWorker(boss: PgBoss): Promise<void> {
         throw gmailError;
       }
     }
+
+    const err = new Error(
+      `No working email provider delivered message to ${to} (configure SENDGRID_* or GMAIL_*)`
+    );
+    Sentry.captureException(err, { tags: { queue: QUEUE_NAME } });
+    throw err;
   });
 }
 
