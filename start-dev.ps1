@@ -32,6 +32,6 @@ Write-Host "Backend API:     http://localhost:3000" -ForegroundColor Yellow
 Write-Host "Database Studio: http://localhost:5555" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Default Login:" -ForegroundColor White
-Write-Host "Email:    admin@example.com" -ForegroundColor Cyan
-Write-Host "Password: AdminPassword123!" -ForegroundColor Cyan
+Write-Host "Email:    admin@gmail.com" -ForegroundColor Cyan
+Write-Host "Password: admin1234" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan

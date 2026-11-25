@@ -23,6 +23,6 @@ echo Database Studio: http://localhost:5555
 echo Live Gmail Sync: Active (Listening for incoming emails to deepgamer933@gmail.com)
 echo.
 echo Login Credentials:
-echo Email:    admin@example.com
-echo Password: AdminPassword123!
+echo Email:    admin@gmail.com
+echo Password: admin1234
 echo ==========================================================

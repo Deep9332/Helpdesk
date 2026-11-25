@@ -20,12 +20,49 @@ async function main() {
 
   const now = new Date();
 
-  // Seed admin user
-  const existingAdmin = await prisma.user.findUnique({ where: { email } });
+  // Seed or update admin user so changing SEED_ADMIN_* updates the database cleanly
+  const hashedPassword = await hashPassword(password);
+  const existingAdmin =
+    (await prisma.user.findUnique({ where: { email } })) ??
+    (email !== "admin@example.com"
+      ? await prisma.user.findUnique({ where: { email: "admin@example.com" } })
+      : null);
+  const isInitialSeed = !existingAdmin;
+
   if (existingAdmin) {
-    console.log(`Admin user ${email} already exists — skipping.`);
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: existingAdmin.id },
+        data: {
+          email,
+          role: Role.admin,
+          deletedAt: null,
+          updatedAt: now,
+        },
+      });
+      const updated = await tx.account.updateMany({
+        where: { userId: existingAdmin.id, providerId: "credential" },
+        data: {
+          password: hashedPassword,
+          updatedAt: now,
+        },
+      });
+      if (updated.count === 0) {
+        await tx.account.create({
+          data: {
+            id: crypto.randomUUID(),
+            accountId: existingAdmin.id,
+            providerId: "credential",
+            userId: existingAdmin.id,
+            password: hashedPassword,
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
+      }
+    });
+    console.log(`Admin user ${email} updated successfully.`);
   } else {
-    const hashedPassword = await hashPassword(password);
     const userId = crypto.randomUUID();
 
     await prisma.$transaction([
@@ -113,9 +150,9 @@ async function main() {
     console.log(`Agent user ${agentEmail} created successfully.`);
   }
 
-  // Seed sample tickets if empty
+  // Seed sample tickets only on initial seed when table is empty
   const ticketCount = await prisma.ticket.count();
-  if (ticketCount === 0) {
+  if (isInitialSeed && ticketCount === 0) {
     const adminUser = await prisma.user.findUnique({ where: { email } });
     
     await prisma.ticket.createMany({

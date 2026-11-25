@@ -21,4 +21,4 @@ RUN cd client && bunx vite build
 ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["sh", "-c", "cd server && bunx prisma migrate deploy && cd .. && bun run server/src/index.ts"]
+CMD ["sh", "-c", "cd server && bunx prisma migrate deploy && if [ -n \"$SEED_ADMIN_EMAIL\" ] && [ -n \"$SEED_ADMIN_PASSWORD\" ]; then bunx prisma db seed; fi && cd .. && bun run server/src/index.ts"]
