@@ -1,5 +1,4 @@
-# Stage 1: Install dependencies
-FROM oven/bun:1 AS install
+FROM oven/bun:1
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -7,32 +6,17 @@ COPY client/package.json ./client/
 COPY server/package.json ./server/
 COPY core/package.json ./core/
 
-RUN bun install --frozen-lockfile
-
-# Stage 2: Build
-FROM oven/bun:1 AS build
-WORKDIR /app
-
-COPY --from=install /app/node_modules ./node_modules
+RUN bun install --frozen-lockfile --network-concurrency=4 --no-cache && rm -rf /root/.bun/install/cache
 
 COPY . .
 
 RUN cd server && bunx prisma generate
+ARG VITE_SENTRY_DSN
+ARG VITE_SENTRY_ENVIRONMENT
+ARG SENTRY_AUTH_TOKEN
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
 RUN cd client && bunx vite build
-
-# Stage 3: Production
-FROM oven/bun:1 AS production
-WORKDIR /app
-
-COPY --from=install /app/node_modules ./node_modules
-COPY --from=build /app/client/dist ./client/dist
-
-COPY server ./server
-COPY core ./core
-COPY package.json ./
-
-# Overlay generated Prisma client from build stage
-COPY --from=build /app/server/src/generated ./server/src/generated
 
 ENV NODE_ENV=production
 EXPOSE 3000

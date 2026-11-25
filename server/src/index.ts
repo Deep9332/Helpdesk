@@ -13,6 +13,7 @@ import agentsRouter from "./routes/agents";
 import webhooksRouter from "./routes/webhooks";
 import repliesRouter from "./routes/replies";
 import { startQueue, stopQueue } from "./lib/queue";
+import { getTrustedOrigins } from "./lib/origins";
 
 
 if (!process.env.BETTER_AUTH_SECRET) {
@@ -21,16 +22,35 @@ if (!process.env.BETTER_AUTH_SECRET) {
 
 const app = express();
 const port = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === "production";
 
-app.use(helmet());
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        connectSrc: ["'self'", "https://*.sentry.io"],
+        imgSrc: ["'self'", "data:", "https:"],
+        workerSrc: ["'self'", "blob:"],
+      },
+    },
+  })
+);
 app.use(
   cors({
-    origin: process.env.TRUSTED_ORIGINS?.split(",") ?? [],
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      callback(null, getTrustedOrigins().includes(origin));
+    },
     credentials: true,
   })
 );
-
-const isProduction = process.env.NODE_ENV === "production";
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -51,9 +71,11 @@ app.all("/api/auth/{*any}", authLimiter, (req, res, next) => {
 app.use(express.json());
 
 // In development, redirect root to React frontend on port 5173
-app.get("/", (_req, res) => {
-  res.redirect("http://localhost:5173");
-});
+if (!isProduction) {
+  app.get("/", (_req, res) => {
+    res.redirect("http://localhost:5173");
+  });
+}
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
@@ -71,6 +93,19 @@ app.use("/api/tickets/:ticketId/replies", repliesRouter);
 app.use("/api/webhooks", webhooksRouter);
 
 Sentry.setupExpressErrorHandler(app);
+
+app.use(
+  (
+    err: Error,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction
+  ) => {
+    console.error("Unhandled error:", err);
+    if (res.headersSent) return;
+    res.status(500).json({ error: "Internal server error" });
+  }
+);
 
 // In production, serve the built React client as static files
 if (isProduction) {
@@ -105,8 +140,9 @@ async function boot() {
   process.on("SIGINT", shutdown);
 }
 
-boot().catch((error) => {
+boot().catch(async (error) => {
   Sentry.captureException(error);
   console.error("Failed to start server:", error);
+  await Sentry.flush(2000);
   process.exit(1);
 });

@@ -51,7 +51,7 @@ function formatDuration(seconds: number): string {
 const chartConfig = {
   tickets: {
     label: "Tickets",
-    color: "var(--primary)",
+    color: "#7c3aed",
   },
 } satisfies ChartConfig;
 
@@ -190,7 +190,7 @@ export default function HomePage() {
                 />
                 <Bar
                   dataKey="tickets"
-                  fill="var(--color-tickets)"
+                  fill="var(--color-tickets, #7c3aed)"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>

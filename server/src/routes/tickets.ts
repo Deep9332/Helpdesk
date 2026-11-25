@@ -33,7 +33,7 @@ router.get("/stats", requireAuth, async (_req, res) => {
 
 router.get("/stats/daily-volume", requireAuth, async (_req, res) => {
   const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   thirtyDaysAgo.setHours(0, 0, 0, 0);
 
   const tickets = await prisma.ticket.findMany({
@@ -41,19 +41,21 @@ router.get("/stats/daily-volume", requireAuth, async (_req, res) => {
     select: { createdAt: true },
   });
 
-  // Build a map of date -> count
+  // Build a map of YYYY-MM-DD -> count (using local date)
   const countsByDate = new Map<string, number>();
   for (const t of tickets) {
-    const dateKey = t.createdAt.toISOString().slice(0, 10);
+    const d = new Date(t.createdAt);
+    const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     countsByDate.set(dateKey, (countsByDate.get(dateKey) ?? 0) + 1);
   }
 
-  // Fill in all 30 days (including zeros)
+  // Generate all 30 days up to today
   const data: { date: string; tickets: number }[] = [];
-  for (let i = 0; i < 30; i++) {
-    const d = new Date(thirtyDaysAgo);
-    d.setDate(d.getDate() + i);
-    const dateKey = d.toISOString().slice(0, 10);
+  const today = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     data.push({ date: dateKey, tickets: countsByDate.get(dateKey) ?? 0 });
   }
 

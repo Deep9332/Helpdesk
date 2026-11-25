@@ -13,4 +13,8 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
 });
 
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.setTag("service", "client");
+}
+
 export default Sentry;

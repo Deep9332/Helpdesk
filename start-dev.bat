@@ -13,12 +13,14 @@ powershell -NoProfile -Command "3000, 5173, 5555 | ForEach-Object { Get-NetTCPCo
 start "Helpdesk Express Backend (Port 3000)" cmd /k "cd /d "%~dp0server" && bun run dev"
 start "Helpdesk React Frontend (Port 5173)" cmd /k "cd /d "%~dp0client" && bun run dev"
 start "Helpdesk Database Studio (Port 5555)" cmd /k "cd /d "%~dp0server" && bun run studio"
+start "Helpdesk Live Gmail Sync" cmd /k "cd /d "%~dp0server" && bun run scripts/gmail-listener.ts"
 
 echo.
 echo All services launched in separate windows!
 echo Frontend App:    http://localhost:5173
 echo Backend API:     http://localhost:3000
 echo Database Studio: http://localhost:5555
+echo Live Gmail Sync: Active (Listening for incoming emails to deepgamer933@gmail.com)
 echo.
 echo Login Credentials:
 echo Email:    admin@example.com

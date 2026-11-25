@@ -1,4 +1,5 @@
 import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 import type { PgBoss } from "pg-boss";
 import Sentry from "./sentry";
 
@@ -21,23 +22,58 @@ export async function registerSendEmailWorker(boss: PgBoss): Promise<void> {
   await boss.work<SendEmailJobData>(QUEUE_NAME, async (jobs) => {
     const { to, subject, body, bodyHtml } = jobs[0]!.data;
 
-    try {
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+    // 1. Try SendGrid first
+    if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_FROM_EMAIL) {
+      try {
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        await sgMail.send({
+          to,
+          from: process.env.SENDGRID_FROM_EMAIL,
+          subject,
+          text: body,
+          ...(bodyHtml && { html: bodyHtml }),
+          headers: {
+            "X-Helpdesk-Auto-Reply": "true",
+          },
+        });
+        console.log(`Email sent via SendGrid to ${to} — subject: "${subject}"`);
+        return;
+      } catch (sgError: any) {
+        console.warn("SendGrid sending failed, falling back to Gmail SMTP:", sgError.message);
+      }
+    }
 
-      await sgMail.send({
-        to,
-        from: process.env.SENDGRID_FROM_EMAIL!,
-        subject,
-        text: body,
-        ...(bodyHtml && { html: bodyHtml }),
-      });
+    // 2. Reliable Fallback: Gmail SMTP using user's App Password
+    if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD.replace(/\s+/g, ""),
+          },
+        });
 
-      console.log(`Email sent to ${to} — subject: "${subject}"`);
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: { queue: QUEUE_NAME },
-      });
-      throw error;
+        await transporter.sendMail({
+          from: `"Helpdesk Support" <${process.env.GMAIL_USER}>`,
+          to,
+          subject,
+          text: body,
+          html: bodyHtml,
+          headers: {
+            "X-Helpdesk-Auto-Reply": "true",
+          },
+        });
+
+        console.log(`Email sent via Gmail to ${to} — subject: "${subject}"`);
+        return;
+      } catch (gmailError: any) {
+        console.error("Gmail SMTP fallback failed:", gmailError.message);
+        Sentry.captureException(gmailError, {
+          tags: { queue: QUEUE_NAME },
+        });
+        throw gmailError;
+      }
     }
   });
 }

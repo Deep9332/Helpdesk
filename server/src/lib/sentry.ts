@@ -7,4 +7,8 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
+if (process.env.SENTRY_DSN) {
+  Sentry.setTag("service", "server");
+}
+
 export default Sentry;
