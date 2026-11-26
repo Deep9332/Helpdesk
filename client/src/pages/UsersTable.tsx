@@ -92,24 +92,26 @@ export default function UsersTable({ onEdit, onDelete }: UsersTableProps) {
                   {new Date(user.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(user)}
-                    aria-label={`Edit ${user.name}`}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  {user.role !== Role.admin && (
+                  <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onDelete(user)}
-                      aria-label={`Delete ${user.name}`}
+                      onClick={() => onEdit(user)}
+                      aria-label={`Edit ${user.name}`}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Pencil className="h-4 w-4" />
                     </Button>
-                  )}
+                    {user.role !== Role.admin && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete(user)}
+                        aria-label={`Delete ${user.name}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

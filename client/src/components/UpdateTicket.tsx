@@ -43,8 +43,8 @@ export default function UpdateTicket({ ticket }: UpdateTicketProps) {
   });
 
   return (
-    <Card className="w-56 h-fit">
-      <CardContent className="pt-5 space-y-5">
+    <Card className="w-full lg:w-60 h-fit">
+      <CardContent className="pt-5 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4 lg:gap-5">
         <div className="space-y-1.5">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Status

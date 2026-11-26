@@ -50,7 +50,7 @@ const columns: ColumnDef<Ticket>[] = [
     cell: ({ row }) => (
       <Link
         to={`/tickets/${row.original.id}`}
-        className="link font-medium"
+        className="link font-medium block min-w-[180px] max-w-[320px] whitespace-normal break-words"
       >
         {row.original.subject}
       </Link>
@@ -60,9 +60,9 @@ const columns: ColumnDef<Ticket>[] = [
     accessorKey: "senderName",
     header: "Sender",
     cell: ({ row }) => (
-      <div>
+      <div className="min-w-[160px] whitespace-normal">
         <div>{row.original.senderName}</div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground break-all">
           {row.original.senderEmail}
         </div>
       </div>
@@ -222,8 +222,8 @@ export default function TicketsTable({ filters }: { filters: TicketFilters }) {
       </Table>
 
       {!isLoading && !error && (
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
+          <p className="text-sm text-muted-foreground text-center sm:text-left">
             {total === 0
               ? "No tickets"
               : `Showing ${pagination.pageIndex * pagination.pageSize + 1}–${Math.min((pagination.pageIndex + 1) * pagination.pageSize, total)} of ${total} tickets`}

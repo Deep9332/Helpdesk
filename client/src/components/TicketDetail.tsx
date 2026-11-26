@@ -11,14 +11,14 @@ export default function TicketDetail({ ticket }: TicketDetailProps) {
   return (
     <>
       <div>
-        <div className="flex items-start gap-3 mb-3">
-          <h1 className="text-2xl font-semibold tracking-tight flex-1">
+        <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3 mb-3">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight flex-1 min-w-0 break-words">
             {ticket.subject}
           </h1>
           <StatusBadge status={ticket.status} />
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-muted-foreground">
-          <div>
+          <div className="break-words">
             <span className="font-medium text-foreground">From:</span>{" "}
             {ticket.senderName} ({ticket.senderEmail})
           </div>
@@ -34,15 +34,16 @@ export default function TicketDetail({ ticket }: TicketDetailProps) {
       </div>
 
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-5 sm:pt-6">
           {ticket.bodyHtml ? (
             <div
+              className="overflow-x-auto max-w-full break-words [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(ticket.bodyHtml),
               }}
             />
           ) : (
-            <p className="whitespace-pre-wrap leading-relaxed">
+            <p className="whitespace-pre-wrap break-words leading-relaxed">
               {ticket.body}
             </p>
           )}

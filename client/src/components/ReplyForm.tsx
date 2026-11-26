@@ -75,16 +75,21 @@ export default function ReplyForm({ ticket }: ReplyFormProps) {
         {errors.body && <ErrorMessage message={errors.body.message} />}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           variant="outline"
+          className="flex-1 sm:flex-none"
           disabled={!bodyValue?.trim() || polishMutation.isPending || replyMutation.isPending}
           onClick={() => polishMutation.mutate()}
         >
           {polishMutation.isPending ? "Polishing..." : "Polish"}
         </Button>
-        <Button type="submit" disabled={!bodyValue?.trim() || replyMutation.isPending || polishMutation.isPending}>
+        <Button
+          type="submit"
+          className="flex-1 sm:flex-none"
+          disabled={!bodyValue?.trim() || replyMutation.isPending || polishMutation.isPending}
+        >
           {replyMutation.isPending ? "Sending..." : "Send Reply"}
         </Button>
       </div>

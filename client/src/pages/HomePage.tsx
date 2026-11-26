@@ -112,19 +112,19 @@ export default function HomePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight mb-6">Dashboard</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <h1 className="text-xl sm:text-2xl font-semibold tracking-tight mb-5 sm:mb-6">Dashboard</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
         {cards.map((card) => (
           <Card
             key={card.title}
             className=""
           >
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <CardTitle className="text-[13px] font-medium text-muted-foreground">
                   {card.title}
                 </CardTitle>
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                   <card.icon className="h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
@@ -133,7 +133,7 @@ export default function HomePage() {
               {statsLoading ? (
                 <Skeleton className="h-9 w-20" />
               ) : (
-                <p className="text-3xl font-semibold tracking-tight">
+                <p className="text-2xl sm:text-3xl font-semibold tracking-tight">
                   {card.value}
                 </p>
               )}
@@ -142,7 +142,7 @@ export default function HomePage() {
         ))}
       </div>
 
-      <Card className="mt-6">
+      <Card className="mt-5 sm:mt-6">
         <CardHeader>
           <CardTitle>Tickets Per Day</CardTitle>
           <CardDescription>Last 30 days</CardDescription>
@@ -154,9 +154,9 @@ export default function HomePage() {
               fallback="Failed to load chart data"
             />
           ) : volumeLoading ? (
-            <Skeleton className="h-[300px] w-full" />
+            <Skeleton className="h-[220px] sm:h-[300px] w-full" />
           ) : (
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
+            <ChartContainer config={chartConfig} className="h-[220px] sm:h-[300px] w-full">
               <BarChart accessibilityLayer data={volume?.data}>
                 <CartesianGrid vertical={false} />
                 <XAxis

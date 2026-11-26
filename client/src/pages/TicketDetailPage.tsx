@@ -39,8 +39,8 @@ export default function TicketDetailPage() {
       )}
 
       {ticket && (
-        <div className="grid grid-cols-[1fr_auto] gap-6">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6 items-start">
+          <div className="min-w-0 space-y-6">
             <TicketDetail ticket={ticket} />
 
             <TicketSummary ticket={ticket} />
@@ -50,7 +50,7 @@ export default function TicketDetailPage() {
               <ReplyThread ticket={ticket} />
             </div>
 
-            <div className="space-y-3 pb-16">
+            <div className="space-y-3 pb-4 lg:pb-16">
               <h2>Add a Reply</h2>
               <ReplyForm ticket={ticket} />
             </div>

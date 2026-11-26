@@ -64,9 +64,9 @@ export default function ReplyThread({ ticket }: ReplyThreadProps) {
             className={isAgent ? "border-primary/25" : ""}
           >
             <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <div
-                  className={`h-6 w-6 rounded-md flex items-center justify-center ${
+                  className={`h-6 w-6 rounded-md flex items-center justify-center shrink-0 ${
                     isAgent
                       ? "bg-primary/15 text-primary"
                       : "bg-muted text-muted-foreground"
@@ -78,11 +78,11 @@ export default function ReplyThread({ ticket }: ReplyThreadProps) {
                     <User className="h-3.5 w-3.5" />
                   )}
                 </div>
-                <div>
-                  <CardTitle className="text-sm font-medium">
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-sm font-medium break-words">
                     {displayName}
                   </CardTitle>
-                  <CardDescription className="text-xs">
+                  <CardDescription className="text-xs break-words">
                     {senderTypeLabel[reply.senderType]} &middot;{" "}
                     {new Date(reply.createdAt).toLocaleString()}
                   </CardDescription>
@@ -92,12 +92,13 @@ export default function ReplyThread({ ticket }: ReplyThreadProps) {
             <CardContent>
               {reply.bodyHtml ? (
                 <div
+                  className="overflow-x-auto max-w-full break-words [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(reply.bodyHtml),
                   }}
                 />
               ) : (
-                <p className="whitespace-pre-line leading-relaxed">
+                <p className="whitespace-pre-line break-words leading-relaxed">
                   {reply.body}
                 </p>
               )}

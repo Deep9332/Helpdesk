@@ -53,9 +53,9 @@ export default function UsersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-        <Button onClick={() => setDialog({ mode: "create" })}>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Users</h1>
+        <Button onClick={() => setDialog({ mode: "create" })} className="shrink-0">
           <Plus className="mr-2 h-4 w-4" />
           New User
         </Button>
