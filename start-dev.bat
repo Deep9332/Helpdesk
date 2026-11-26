@@ -24,5 +24,5 @@ echo Live Gmail Sync: Active (Listening for incoming emails to deepgamer933@gmai
 echo.
 echo Login Credentials:
 echo Email:    admin@gmail.com
-echo Password: admin1234
+echo Password: admin123
 echo ==========================================================

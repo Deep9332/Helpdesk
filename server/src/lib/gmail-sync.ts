@@ -20,6 +20,7 @@ export function startGmailSync(): Promise<void> | null {
   const pass = (process.env.GMAIL_APP_PASSWORD || "").replace(/\s+/g, "");
 
   if (!user || !pass) {
+    console.warn("Live Gmail Sync disabled: GMAIL_USER or GMAIL_APP_PASSWORD is not set.");
     return null;
   }
 
@@ -105,7 +106,11 @@ async function runSyncLoop(user: string, pass: string): Promise<void> {
         if (highestKnownUid === 0) {
           const allUids = await client.search({ all: true }, { uid: true });
           if (Array.isArray(allUids) && allUids.length > 0) {
-            highestKnownUid = (allUids[allUids.length - 1] ?? 1) - 1;
+            let maxUid = 0;
+            for (const uid of allUids) {
+              if (uid > maxUid) maxUid = uid;
+            }
+            highestKnownUid = Math.max(0, maxUid - 1);
           }
         }
 
